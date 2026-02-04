@@ -1,5 +1,22 @@
 <?php
 session_start();
+require 'api/read.php';
+
+$id = $_GET['id'] ?? '';
+
+if (empty($id)) {
+    $_SESSION['error'] = 'Student ID is required.';
+    header('Location: index.php');
+    exit;
+}
+
+$student = getStudentById($id);
+
+if (!$student) {
+    $_SESSION['error'] = 'Student not found.';
+    header('Location: index.php');
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en" class="h-full ">
@@ -7,7 +24,7 @@ session_start();
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Create Student | Student.io</title>
+    <title>Edit Student | Student.io</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <style>
@@ -45,7 +62,7 @@ session_start();
             <header class="py-10">
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <h1 class="text-3xl font-bold tracking-tight text-white">
-                        Student Create
+                        Edit Student
                     </h1>
                 </div>
             </header>
@@ -53,7 +70,7 @@ session_start();
 
         <main class="-mt-32">
             <div class="mx-auto max-w-3xl px-4 pb-12 sm:px-6 lg:px-8">
-                <form action="api/create.php" method="POST"
+                <form action="api/update.php" method="POST"
                     class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2">
                     <div class="px-4 py-6 sm:p-8">
                         <div class="mb-8">
@@ -61,16 +78,18 @@ session_start();
                                 Student Information
                             </h2>
                             <p class="mt-1 text-sm leading-6 text-gray-600">
-                                Enter the student's personal details and enrollment status.
+                                Update the student's personal details and enrollment status.
                             </p>
                         </div>
 
                         <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                            <input type="hidden" name="id" value="<?php echo $student['id']; ?>">
+
                             <div class="sm:col-span-3">
                                 <label for="name" class="block text-sm font-medium leading-6 text-gray-900">Name</label>
                                 <div class="mt-2">
                                     <input type="text" name="name" id="name" autocomplete="name" placeholder="John Doe"
-                                        required
+                                        required value="<?php echo htmlspecialchars($student['name']); ?>"
                                         class="block w-full rounded-md border-0 p-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6 outline-none focus:ring-1 focus:ring-indigo-600" />
                                 </div>
                             </div>
@@ -79,8 +98,9 @@ session_start();
                                 <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Email
                                     address</label>
                                 <div class="mt-2">
-                                    <input id="email" name="email" type="email" autocomplete="email"
+                                    <input id="email" name="email" type="email" autocomplete="email" required
                                         placeholder="john@example.com"
+                                        value="<?php echo htmlspecialchars($student['email']); ?>"
                                         class="block w-full rounded-md border-0 p-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6 outline-none focus:ring-1 focus:ring-indigo-600" />
                                 </div>
                             </div>
@@ -89,8 +109,9 @@ session_start();
                                 <label for="phone" class="block text-sm font-medium leading-6 text-gray-900">Phone
                                     Number</label>
                                 <div class="mt-2">
-                                    <input type="tel" name="phone" id="phone" autocomplete="tel"
+                                    <input type="tel" name="phone" id="phone" autocomplete="tel" required
                                         placeholder="+1 (555) 123-4567"
+                                        value="<?php echo htmlspecialchars($student['phone']); ?>"
                                         class="block w-full rounded-md border-0 p-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6 outline-none focus:ring-1 focus:ring-indigo-600" />
                                 </div>
                             </div>
@@ -101,10 +122,18 @@ session_start();
                                 <div class="mt-2">
                                     <select id="status" name="status"
                                         class="block w-full rounded-md border-0 p-2.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:max-w-xs sm:text-sm sm:leading-6 outline-none focus:ring-1 focus:ring-indigo-600">
-                                        <option>Active</option>
-                                        <option>On Leave</option>
-                                        <option>Graduated</option>
-                                        <option>Inactive</option>
+                                        <option value="Active"
+                                            <?php echo ($student['status'] === 'Active') ? 'selected' : ''; ?>>Active
+                                        </option>
+                                        <option value="On Leave"
+                                            <?php echo ($student['status'] === 'On Leave') ? 'selected' : ''; ?>>On
+                                            Leave</option>
+                                        <option value="Graduated"
+                                            <?php echo ($student['status'] === 'Graduated') ? 'selected' : ''; ?>>
+                                            Graduated</option>
+                                        <option value="Inactive"
+                                            <?php echo ($student['status'] === 'Inactive') ? 'selected' : ''; ?>>
+                                            Inactive</option>
                                     </select>
                                 </div>
                             </div>

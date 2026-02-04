@@ -1,3 +1,9 @@
+<?php
+session_start();
+require 'api/read.php';
+
+$students = getAllStudents();
+?>
 <!DOCTYPE html>
 <html lang="en" class="h-full bg-gray-50">
 
@@ -67,6 +73,7 @@
                     </div>
 
                     <div class="overflow-x-auto">
+                        <?php if (count($students) > 0): ?>
                         <table class="min-w-full divide-y divide-gray-300">
                             <thead>
                                 <tr>
@@ -89,51 +96,69 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
+                                <?php foreach ($students as $student): ?>
                                 <tr>
                                     <td
                                         class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
-                                        John Doe
+                                        <?php echo htmlspecialchars($student['name']); ?>
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                        john.doe@example.com
+                                        <?php echo htmlspecialchars($student['email']); ?>
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                        +880 1712-123456
+                                        <?php echo htmlspecialchars($student['phone']); ?>
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                        <?php
+                                            $statusColor = 'gray';
+                                            $statusBgColor = 'bg-gray-50';
+                                            $statusTextColor = 'text-gray-700';
+                                            $statusRingColor = 'ring-gray-600/20';
+                                            
+                                            if ($student['status'] === 'Active') {
+                                                $statusBgColor = 'bg-green-50';
+                                                $statusTextColor = 'text-green-700';
+                                                $statusRingColor = 'ring-green-600/20';
+                                            } elseif ($student['status'] === 'On Leave') {
+                                                $statusBgColor = 'bg-yellow-50';
+                                                $statusTextColor = 'text-yellow-800';
+                                                $statusRingColor = 'ring-yellow-600/20';
+                                            } elseif ($student['status'] === 'Graduated') {
+                                                $statusBgColor = 'bg-blue-50';
+                                                $statusTextColor = 'text-blue-700';
+                                                $statusRingColor = 'ring-blue-600/20';
+                                            } elseif ($student['status'] === 'Inactive') {
+                                                $statusBgColor = 'bg-red-50';
+                                                $statusTextColor = 'text-red-700';
+                                                $statusRingColor = 'ring-red-600/20';
+                                            }
+                                        ?>
                                         <span
-                                            class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">Active</span>
+                                            class="inline-flex items-center rounded-md <?php echo $statusBgColor; ?> px-2 py-1 text-xs font-medium <?php echo $statusTextColor; ?> ring-1 ring-inset <?php echo $statusRingColor; ?>">
+                                            <?php echo htmlspecialchars($student['status']); ?>
+                                        </span>
                                     </td>
                                     <td
                                         class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                                        <a href="#" class="text-indigo-600 hover:text-indigo-900 mr-4">Edit</a>
-                                        <a href="#" class="text-red-600 hover:text-red-900">Delete</a>
+                                        <a href="edit.php?id=<?php echo $student['id']; ?>"
+                                            class="text-indigo-600 hover:text-indigo-900 mr-4">Edit</a>
+                                        <a href="api/delete.php?id=<?php echo $student['id']; ?>"
+                                            class="text-red-600 hover:text-red-900"
+                                            onclick="return confirm('Are you sure you want to delete <?php echo htmlspecialchars($student['name']); ?>? This action cannot be undone.');">Delete</a>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td
-                                        class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
-                                        Jane Smith
-                                    </td>
-                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                        jane.smith@example.com
-                                    </td>
-                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                        +880 1912-123456
-                                    </td>
-                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                        <span
-                                            class="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20">On
-                                            Leave</span>
-                                    </td>
-                                    <td
-                                        class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                                        <a href="#" class="text-indigo-600 hover:text-indigo-900 mr-4">Edit</a>
-                                        <a href="#" class="text-red-600 hover:text-red-900">Delete</a>
-                                    </td>
-                                </tr>
+                                <?php endforeach; ?>
                             </tbody>
                         </table>
+                        <?php else: ?>
+                        <div class="text-center py-8">
+                            <p class="text-sm text-gray-500 mb-4">No students found.</p>
+                            <a href="create.php"
+                                class="inline-block rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
+                                Add First Student
+                            </a>
+                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>

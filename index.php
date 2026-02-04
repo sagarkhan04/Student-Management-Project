@@ -2,7 +2,16 @@
 session_start();
 require 'api/read.php';
 
-$students = getAllStudents();
+// Get search and filter parameters
+$searchTerm = $_GET['search'] ?? '';
+$statusFilter = $_GET['status'] ?? '';
+
+// Get students based on search and filter
+if (!empty($searchTerm) || !empty($statusFilter)) {
+    $students = searchStudents($searchTerm, $statusFilter);
+} else {
+    $students = getAllStudents();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en" class="h-full bg-gray-50">
@@ -70,6 +79,39 @@ $students = getAllStudents();
                                 Add Student
                             </a>
                         </div>
+                    </div>
+
+                    <!-- Search and Filter Bar -->
+                    <div class="mb-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <form method="GET" class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                            <div>
+                                <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+                                <input type="text" name="search" id="search" placeholder="Search by name, email, or phone..." 
+                                    value="<?php echo htmlspecialchars($searchTerm); ?>"
+                                    class="w-full rounded-md border-0 p-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-indigo-600 outline-none" />
+                            </div>
+                            <div>
+                                <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Filter by Status</label>
+                                <select name="status" id="status" 
+                                    class="w-full rounded-md border-0 p-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-indigo-600 outline-none">
+                                    <option value="">All Status</option>
+                                    <option value="Active" <?php echo ($statusFilter === 'Active') ? 'selected' : ''; ?>>Active</option>
+                                    <option value="On Leave" <?php echo ($statusFilter === 'On Leave') ? 'selected' : ''; ?>>On Leave</option>
+                                    <option value="Graduated" <?php echo ($statusFilter === 'Graduated') ? 'selected' : ''; ?>>Graduated</option>
+                                    <option value="Inactive" <?php echo ($statusFilter === 'Inactive') ? 'selected' : ''; ?>>Inactive</option>
+                                </select>
+                            </div>
+                            <div class="flex items-end gap-2">
+                                <button type="submit" 
+                                    class="flex-1 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
+                                    Search
+                                </button>
+                                <a href="index.php" 
+                                    class="flex-1 rounded-md bg-gray-300 px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-400 text-center">
+                                    Reset
+                                </a>
+                            </div>
+                        </form>
                     </div>
 
                     <div class="overflow-x-auto">

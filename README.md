@@ -1,4 +1,10 @@
-# Student Management System
+# Assignment -01 [Student Management System]
+
+### Name : Sagar
+
+### Email: sagar.cmt1920@gmail.com
+
+## Project Summary
 
 A comprehensive web-based Student Management System built with PHP, MySQL, and Tailwind CSS. This application allows you to manage student information efficiently with a clean, modern user interface.
 
